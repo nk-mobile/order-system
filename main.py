@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import sqlite3
-
+from tkinter import messagebox
 
 # Функция инициализации базы данных
 def init_db():
@@ -58,6 +58,24 @@ def view_orders():
 
     conn.close()
 
+# Функция завершения заказа
+def complete_order():
+    selected_item = tree.selection()
+
+    if selected_item:
+        order_id = tree.item(selected_item, 'values')[0]
+
+        conn = sqlite3.connect('business_orders.db')
+        cur = conn.cursor()
+
+        cur.execute("UPDATE orders SET status='Завершён' WHERE id=?", (order_id,))
+
+        conn.commit()
+        conn.close()
+
+        view_orders()
+    else:
+        messagebox.showwarning("Предупреждение", "Выберите заказ для завершения")
 
 # Создание главного окна
 app = tk.Tk()
@@ -75,6 +93,10 @@ order_details_entry.pack()
 # Кнопка добавления заказа
 add_button = tk.Button(app, text="Добавить заказ", command=add_order)
 add_button.pack()
+
+# Кнопка закрытия заказа
+complete_button = tk.Button(app, text="Завершить заказ", command=complete_order)
+complete_button.pack()
 
 # Таблица для отображения заказов
 columns = ("id", "customer_name", "order_details", "status")
